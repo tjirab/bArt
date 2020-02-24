@@ -6,6 +6,10 @@ import json
 import numpy as np
 from tkinter import *
 
+# Ideas:
+# TODO: create pattern and "release" it into n different directions
+# TODO: fill canvas with shape and build on top of existing shapes until canvas is filled
+
 
 # Config
 hideturtle()
@@ -119,18 +123,26 @@ def get_config():
 	config['shape_type'] = random.choice(shapes)
 	config['shape_size'] = random.randint(5, 25)
 	config['shape_edges'] = random.randint(3,15) # only used when shape='random' and for draw_complex_circle
-	config['iterations'] = random.randint(50, 250)
+	config['iterations'] = random.randint(50, 150)
 	config['rotate_val'] = random.randint(1, 90)
 	config['rotate_random_angle'] = bool(random.getrandbits(1))
 	config['rotate_random_direction'] = bool(random.getrandbits(1))
-	config['pen_color'] = tuple(np.random.choice(range(256), size=3))
+	
+	# determine theme
+	white_bg = bool(random.getrandbits(1))
+	if white_bg == True:
+		config['bg_color'] = 'white'
+		config['pen_color'] = 'black'
+	else:
+		config['bg_color'] = 'black'
+		config['pen_color'] = tuple(np.random.choice(range(256), size=3))
+
 	# TODO: behaviour: connect, jump, copy?
 	print(json.dumps(config, cls=NpEncoder, indent=2, sort_keys=True))
 	return config
 
 
-def get_drawing():
-	config = get_config()
+def get_drawing(config):
 	
 	pencolor(config['pen_color'])
 
@@ -163,13 +175,15 @@ def get_drawing():
 
 def main():
 	print("DEBUG main - start")
+	config = get_config()
 	s = turtle.Screen()
-	s.bgcolor("black")
+	print("DEBUG main - config['bg_color']: {}".format(config['bg_color']))
+	s.bgcolor(config['bg_color'])  # get from config
 	t = turtle.Turtle()
 	draw_background(t)
 	ts = t.getscreen()
 	canvas = ts.getcanvas()
-	get_drawing()
+	get_drawing(config)
 	canvas.postscript(file="drawings/bart_{}.eps".format(round(time.time())))
 
 
