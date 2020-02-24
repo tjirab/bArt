@@ -4,17 +4,13 @@ import turtle
 import time
 import json
 import numpy as np
-# from Tkinter import *
+from tkinter import *
 
-ts = turtle.getscreen()
 
 # Config
 hideturtle()
 speed(0)
 colormode(255)
-canvas = ts.getcanvas()
-height = ts.getcanvas()._canvas.winfo_height()
-width = ts.getcanvas()._canvas.winfo_width()
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -27,6 +23,41 @@ class NpEncoder(json.JSONEncoder):
         else:
             return super(NpEncoder, self).default(obj)
 
+
+def draw_background(t):
+	print("DEBUG draw_background - start")
+	""" Draw a background rectangle. """
+	ts = t.getscreen()
+	canvas = ts.getcanvas()
+	height = ts.getcanvas()._canvas.winfo_height()
+	width = ts.getcanvas()._canvas.winfo_width()
+
+	turtleheading = t.heading()
+	turtlespeed = t.speed()
+	penposn = t.position()
+	penstate = t.pen()
+
+	t.penup()
+	t.speed(0)
+	t.goto(-width/2-2, -height/2+3)
+	t.fillcolor(turtle.Screen().bgcolor())
+	t.begin_fill()
+	t.setheading(0)
+	t.forward(width)
+	t.setheading(90)
+	t.forward(height)
+	t.setheading(180)
+	t.forward(width)
+	t.setheading(270)
+	t.forward(height)
+	t.end_fill()
+	t.penup()
+	t.setposition(*penposn)
+	t.pen(penstate)
+	t.setheading(turtleheading)
+	t.speed(turtlespeed)
+
+
 def square(s):
 	for i in range(4):
 		right(90)
@@ -36,6 +67,25 @@ def triangle(s):
 	for i in range(3):
 		right(120)
 		forward(s)
+
+def draw_circle(s):
+	circle(s)
+
+
+# draw_complex_circle
+# * s = size
+# * n = amount of circles
+def draw_complex_circle(s, n):
+	angle = 360 / n
+	for i in range(n):
+		circle(s)
+		right(angle)
+
+
+# TODO: draw_parallelogram
+def draw_parallelogram():
+	return
+
 
 # e = edges; s = size
 def shape(e, s, random_angle=False):
@@ -63,24 +113,25 @@ def rotate(n, angle_random=False, direction_random=False):
 
 
 def get_config():
-	shapes = ['square', 'triangle', 'random']
+	shapes = ['square', 'triangle', 'random', 'circle', 'complex_circle']
 	config = {}
 	config['forward_val'] = random.randint(0,100)
 	config['shape_type'] = random.choice(shapes)
 	config['shape_size'] = random.randint(5, 25)
-	config['shape_edges'] = random.randint(3,15) # only used when shape='random' 
-	config['iterations'] = random.randint(5, 100)
+	config['shape_edges'] = random.randint(3,15) # only used when shape='random' and for draw_complex_circle
+	config['iterations'] = random.randint(50, 250)
 	config['rotate_val'] = random.randint(1, 90)
 	config['rotate_random_angle'] = bool(random.getrandbits(1))
-	config['rodate_random_direction'] = bool(random.getrandbits(1))
+	config['rotate_random_direction'] = bool(random.getrandbits(1))
 	config['pen_color'] = tuple(np.random.choice(range(256), size=3))
 	# TODO: behaviour: connect, jump, copy?
 	print(json.dumps(config, cls=NpEncoder, indent=2, sort_keys=True))
 	return config
 
+
 def get_drawing():
 	config = get_config()
-	bgcolor("black")
+	
 	pencolor(config['pen_color'])
 
 	for i in range(config['iterations']):
@@ -91,16 +142,43 @@ def get_drawing():
 		elif config['shape_type'] == 'triangle':
 			triangle(config['shape_size'])
 		elif config['shape_type'] == 'random':
-			shape(config['shape_edges'], config['shape_size'], True)
+			r = random.randint(1,5)
+			if r == 1:
+				square(config['shape_size'])
+			elif r == 2:
+				draw_circle(config['shape_size'])
+			elif r == 3:
+				triangle(config['shape_size'])
+			elif r == 4:
+				shape(config['shape_edges'], config['shape_size'], True)
+			elif r == 5:
+				draw_complex_circle(config['shape_size'], config['shape_edges'])
+		elif config['shape_type'] == 'circle':
+			draw_circle(config['shape_size'])
+		elif config['shape_type'] == 'complex_circle':
+			draw_complex_circle(config['shape_size'], config['shape_edges'])
 
-		rotate(config['rotate_val'], config['rotate_random_angle'], config['rodate_random_direction'])
-
-get_drawing()
+		rotate(config['rotate_val'], config['rotate_random_angle'], config['rotate_random_direction'])
 
 
-# end_fill()
+def main():
+	print("DEBUG main - start")
+	s = turtle.Screen()
+	s.bgcolor("black")
+	t = turtle.Turtle()
+	draw_background(t)
+	ts = t.getscreen()
+	canvas = ts.getcanvas()
+	get_drawing()
+	canvas.postscript(file="drawings/bart_{}.eps".format(round(time.time())))
+
+
+if __name__ == '__main__':
+	main()
+
 
 # Save and pass on params
 # TODO: pass on parameters
-ts.getcanvas().postscript(file="drawings/bart_{}.eps".format(round(time.time())))
+# ts.getcanvas().postscript(file="drawings/bart_{}.eps".format(round(time.time())))
+
 # ts.getscreen().getcanvas().postscript(file="bart_test.ps")
