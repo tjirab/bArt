@@ -9,6 +9,10 @@ from tkinter import *
 # Ideas:
 # TODO: create pattern and "release" it into n different directions
 # TODO: fill canvas with shape and build on top of existing shapes until canvas is filled
+# TODO: possible to continue from vertices of a shape?
+# TODO: stack lines
+# TODO: dots to be connected
+# TODO: first choose method, than geometry?
 
 
 # Config
@@ -189,10 +193,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
-
-# Save and pass on params
-# TODO: pass on parameters
-# ts.getcanvas().postscript(file="drawings/bart_{}.eps".format(round(time.time())))
-
-# ts.getscreen().getcanvas().postscript(file="bart_test.ps")
